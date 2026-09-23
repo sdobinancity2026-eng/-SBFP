@@ -1220,7 +1220,7 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/@supabase/supabase-js/dist/index.mjs [app-ssr] (ecmascript) <locals>");
 ;
 const supabaseUrl = ("TURBOPACK compile-time value", "https://your-actual-project-ref.supabase.co") || '';
-const supabaseAnonKey = ("TURBOPACK compile-time value", "your-actual-anon-key") || '';
+const supabaseAnonKey = ("TURBOPACK compile-time value", "sb_publishable_qiJWVSK8sHevVBb10z54OA_FPJ91MDe") || '';
 const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["createClient"])(supabaseUrl, supabaseAnonKey);
 }),
 ];
