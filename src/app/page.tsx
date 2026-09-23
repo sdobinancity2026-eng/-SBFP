@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { 
   TrendingUp, 
@@ -13,7 +14,8 @@ import {
   Activity,
   HeartPulse,
   Utensils,
-  CalendarCheck
+  CalendarCheck,
+  Plus
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 
@@ -29,7 +31,7 @@ export default function SBFPExecutiveDashboard() {
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Trend Data for Executive Chart (Image 1)
+  // Trend Data for Executive Chart
   const trendData = [
     { month: 'JAN', performance: 35 },
     { month: 'FEB', performance: 52 },
@@ -39,7 +41,7 @@ export default function SBFPExecutiveDashboard() {
     { month: 'JUN', performance: 94 },
   ];
 
-  // Category Breakdown Data (Image 1)
+  // Category Breakdown Data
   const categoryData = [
     { name: 'Strategic', value: 30, color: '#1E40AF' },
     { name: 'Financial', value: 20, color: '#16A34A' },
@@ -68,7 +70,7 @@ export default function SBFPExecutiveDashboard() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6 font-sans">
       {/* Header Banner */}
-      <header className="mb-8 border-b border-slate-800 pb-4 flex justify-between items-center">
+      <header className="mb-8 border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
             <Utensils className="text-blue-500 h-8 w-8" />
@@ -78,13 +80,23 @@ export default function SBFPExecutiveDashboard() {
             Transforming evidence into performance intelligence for student health & attendance.
           </p>
         </div>
-        <div className="bg-blue-950 border border-blue-800 px-4 py-2 rounded-lg text-right">
-          <span className="text-xs text-blue-300 font-semibold block">Target Attendance</span>
-          <span className="text-lg font-bold text-blue-400">85% - 100%</span>
+
+        <div className="flex items-center gap-3">
+          <Link 
+            href="/intake" 
+            className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-lg shadow-blue-600/20"
+          >
+            <Plus className="w-4 h-4" /> Log Daily Intake
+          </Link>
+
+          <div className="bg-blue-950 border border-blue-800 px-4 py-1.5 rounded-lg text-right">
+            <span className="text-[10px] text-blue-300 font-semibold uppercase tracking-wider block">Target Attendance</span>
+            <span className="text-base font-bold text-blue-400">85% - 100%</span>
+          </div>
         </div>
       </header>
 
-      {/* SECTION 1: EXECUTIVE DASHBOARD CARDS (Image 1 Basis) */}
+      {/* SECTION 1: EXECUTIVE DASHBOARD CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-slate-800 border border-slate-700 p-5 rounded-xl flex justify-between items-center">
           <div>
@@ -139,7 +151,7 @@ export default function SBFPExecutiveDashboard() {
         </div>
       </div>
 
-      {/* SECTION 2: VISUAL ANALYTICS & AHA MOMENT (Image 1 Basis) */}
+      {/* SECTION 2: VISUAL ANALYTICS & AHA MOMENT */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Trend line Chart */}
         <div className="bg-slate-800 border border-slate-700 p-5 rounded-xl col-span-1">
@@ -202,7 +214,7 @@ export default function SBFPExecutiveDashboard() {
         </div>
       </div>
 
-      {/* SECTION 3: GOVERNANCE MONITORING DASHBOARD TEMPLATE (Image 2 Basis) */}
+      {/* SECTION 3: GOVERNANCE MONITORING DASHBOARD TEMPLATE */}
       <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
         <div className="flex justify-between items-center mb-4">
           <div>
