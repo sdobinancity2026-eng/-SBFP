@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/-SBFP/node_modules/next/src/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.ts"],"sourcesContent":["module.exports = (\n  require('../../module.compiled') as typeof import('../../module.compiled')\n).vendored['react-rsc']!.ReactJsxDevRuntime\n"],"names":["module","exports","require","vendored","ReactJsxDevRuntime"],"mappings":"AAAAA,OAAOC,OAAO,GACZC,QAAQ,4HACRC,QAAQ,CAAC,YAAY,CAAEC,kBAAkB","ignoreList":[0]}},
+    {"offset": {"line": 9, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/-SBFP/src/app/layout.tsx"],"sourcesContent":["import \"./globals.css\"; export const metadata = { title: \"SBFP Dashboard\" }; export default function RootLayout({ children }: { children: React.ReactNode }) { return (<html lang=\"en\"><body>{children}</body></html>); }\n"],"names":["metadata","title","RootLayout","children","lang"],"mappings":";;;;;;;;;AAA+B,MAAMA,WAAW;IAAEC,OAAO;AAAiB;AAAkB,SAASC,WAAW,EAAEC,QAAQ,EAAiC;IAAI,qBAAQ,8OAAC;QAAKC,MAAK;kBAAK,cAAA,8OAAC;sBAAMD;;;;;;;;;;;AAA0B"}}]
+}
