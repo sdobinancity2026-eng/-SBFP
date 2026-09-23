@@ -29,15 +29,16 @@ export default function LoginPage() {
       return;
     }
 
-    // 2. Query user role from profiles table
+   // 2. Query user role from profiles table
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', authData.user.id)
-      .single();
+      .maybeSingle(); // maybeSingle avoids throwing errors on empty results
 
     if (profileError || !profile) {
-      setErrorMsg('Failed to verify user profile permissions.');
+      console.error('Profile fetch error:', profileError);
+      setErrorMsg(`Failed to verify permissions: ${profileError?.message || 'Profile record missing.'}`);
       await supabase.auth.signOut();
       setLoading(false);
       return;
