@@ -17,40 +17,46 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMsg('');
 
-    // 1. Authenticate user credentials
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // 1. Authenticate user credentials
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (authError || !authData.user) {
-      setErrorMsg(authError?.message || 'Login failed. Please check your credentials.');
-      setLoading(false);
-      return;
-    }
+      if (authError || !authData.user) {
+        setErrorMsg(authError?.message || 'Login failed. Please check your credentials.');
+        setLoading(false);
+        return;
+      }
 
-   // 2. Query user role from profiles table
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', authData.user.id)
-      .maybeSingle(); // maybeSingle avoids throwing errors on empty results
+      // 2. Query user role from profiles table
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.user.id)
+        .maybeSingle();
 
-    if (profileError || !profile) {
-      console.error('Profile fetch error:', profileError);
-      setErrorMsg(`Failed to verify permissions: ${profileError?.message || 'Profile record missing.'}`);
-      await supabase.auth.signOut();
-      setLoading(false);
-      return;
-    }
+      if (profileError || !profile) {
+        console.error('Profile query error:', profileError);
+        setErrorMsg(`Failed to verify permissions: ${profileError?.message || 'Profile record missing.'}`);
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
 
-    // 3. Verify allowed roles
-    if (profile.role === 'super_admin' || profile.role === 'admin') {
-      router.push('/intake');
-      router.refresh();
-    } else {
-      setErrorMsg('Access denied. Administrator privileges required.');
-      await supabase.auth.signOut();
+      // 3. Verify allowed roles
+      if (profile.role === 'super_admin' || profile.role === 'admin') {
+        router.push('/intake');
+        router.refresh();
+      } else {
+        setErrorMsg('Access denied. Administrator privileges required.');
+        await supabase.auth.signOut();
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error('Unexpected login error:', err);
+      setErrorMsg(err?.message || 'An unexpected error occurred during authentication.');
       setLoading(false);
     }
   };
