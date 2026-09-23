@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, CheckCircle2, UserCheck, Utensils, Scale, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, UserCheck, Utensils, Scale, LogOut, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SBFPDataIntake() {
+  const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>('');
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string>('');
   const [attended, setAttended] = useState<boolean>(true);
@@ -16,12 +21,45 @@ export default function SBFPDataIntake() {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchStudents();
+    checkUserSession();
   }, []);
+
+  async function checkUserSession() {
+    // 1. Verify active session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+
+    // 2. Fetch profile role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    // 3. Enforce Role Protection
+    if (!profile || (profile.role !== 'super_admin' && profile.role !== 'admin')) {
+      await supabase.auth.signOut();
+      router.push('/login');
+      return;
+    }
+
+    setUserEmail(session.user.email || '');
+    setUserRole(profile.role);
+    setCheckingAuth(false);
+    fetchStudents();
+  }
 
   async function fetchStudents() {
     const { data } = await supabase.from('beneficiaries').select('id, first_name, last_name, lrn, current_bmi_status');
     if (data) setBeneficiaries(data);
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push('/login');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -52,6 +90,14 @@ export default function SBFPDataIntake() {
     }
   }
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center font-sans">
+        <p className="text-sm text-slate-400">Verifying authorization permissions...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6 font-sans flex flex-col items-center justify-center">
       <div className="w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-xl p-8 shadow-2xl">
@@ -59,9 +105,21 @@ export default function SBFPDataIntake() {
           <Link href="/" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
-          <span className="px-3 py-1 bg-blue-950 text-blue-300 border border-blue-800 text-xs rounded-full">
-            Daily Log Entry
-          </span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-full border border-slate-700">
+              <Shield className="w-3 h-3 text-blue-400" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300">
+                {userRole.replace('_', ' ')}
+              </span>
+            </div>
+            <span className="text-xs text-slate-400">{userEmail}</span>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-800 text-xs rounded-lg flex items-center gap-1 transition"
+            >
+              <LogOut className="w-3 h-3" /> Logout
+            </button>
+          </div>
         </div>
 
         <h1 className="text-2xl font-extrabold text-white mb-2 flex items-center gap-2">
