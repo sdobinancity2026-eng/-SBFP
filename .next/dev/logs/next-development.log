@@ -20,3 +20,5 @@
 {"timestamp":"00:04:13.181","source":"Server","level":"LOG","message":"✓ Compiled in 91ms"}
 {"timestamp":"00:04:30.179","source":"Server","level":"LOG","message":"  Reload env: .env.local"}
 {"timestamp":"00:04:30.262","source":"Server","level":"LOG","message":"✓ Compiled in 49ms"}
+{"timestamp":"00:06:12.238","source":"Browser","level":"WARN","message":"GoTrueClient@sb-your-supabase-url-auth-token:1 (2.117.0) 2026-09-23T02:24:00.470Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key."}
+{"timestamp":"00:06:13.332","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mGoTrueClient@sb-your-supabase-url-auth-token:1 (2.117.0) 2026-09-23T02:24:00.470Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.\\u001b[39m\" \"\\u001b[2m(src/lib/supabase.ts:6:37)\\u001b[22m\""}
