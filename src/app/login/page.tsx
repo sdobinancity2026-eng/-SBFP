@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
@@ -10,49 +9,50 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('1. Form submit triggered');
-    
-    if (loading) return;
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    console.log('--- LOGIN SUBMITTED ---');
+    console.log('Email input:', email);
+
+    if (!email || !password) {
+      setErrorMsg('Please enter both email and password.');
+      return;
+    }
+
     setLoading(true);
     setErrorMsg('');
 
     try {
-      console.log('2. Calling authenticate_user RPC...', { email });
-
-      // 1. Call custom RPC function to verify credentials against app_users
+      console.log('Calling RPC: authenticate_user...');
       const { data, error } = await supabase.rpc('authenticate_user', {
         p_email: email,
         p_password: password,
       });
 
-      console.log('3. RPC Response:', { data, error });
+      console.log('RPC Response Data:', data);
+      console.log('RPC Response Error:', error);
 
       if (error) {
         console.error('RPC Error:', error);
-        setErrorMsg(`Auth Error: ${error.message || 'Failed to authenticate.'}`);
+        setErrorMsg(`Authentication error: ${error.message}`);
         setLoading(false);
         return;
       }
 
-      // 2. Validate returned user data
       if (!data || data.length === 0) {
-        console.warn('No matching user found.');
+        console.warn('No user returned matching credentials.');
         setErrorMsg('Invalid email address or password.');
         setLoading(false);
         return;
       }
 
       const user = data[0];
-      console.log('4. User found:', user);
+      console.log('User verified:', user);
 
-      // 3. Verify allowed roles
       if (user.role === 'super_admin' || user.role === 'admin') {
         localStorage.setItem('sbfp_user', JSON.stringify(user));
-        console.log('5. Navigating to /intake...');
+        console.log('Redirecting to /intake...');
         window.location.href = '/intake';
       } else {
         setErrorMsg('Access denied. Administrator privileges required.');
@@ -60,7 +60,7 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error('Catch Error:', err);
-      setErrorMsg(err?.message || 'An unexpected error occurred during authentication.');
+      setErrorMsg(err?.message || 'An unexpected error occurred.');
       setLoading(false);
     }
   };
@@ -123,9 +123,10 @@ export default function LoginPage() {
           </div>
 
           <button
-            type="submit"
+            type="button"
+            onClick={() => handleLogin()}
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition"
+            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition cursor-pointer"
           >
             {loading ? 'Authenticating...' : 'Sign In'}
             {!loading && <ArrowRight className="w-4 h-4" />}
