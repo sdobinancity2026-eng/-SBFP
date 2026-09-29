@@ -14,45 +14,52 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('1. Form submit triggered');
+    
+    if (loading) return;
     setLoading(true);
     setErrorMsg('');
 
     try {
+      console.log('2. Calling authenticate_user RPC...', { email });
+
       // 1. Call custom RPC function to verify credentials against app_users
       const { data, error } = await supabase.rpc('authenticate_user', {
         p_email: email,
         p_password: password,
       });
 
+      console.log('3. RPC Response:', { data, error });
+
       if (error) {
-        console.error('RPC Authentication Error:', error);
-        setErrorMsg('Authentication service error. Please try again.');
+        console.error('RPC Error:', error);
+        setErrorMsg(`Auth Error: ${error.message || 'Failed to authenticate.'}`);
         setLoading(false);
         return;
       }
 
-      // 2. Validate returned user data (empty array means invalid email or password)
+      // 2. Validate returned user data
       if (!data || data.length === 0) {
+        console.warn('No matching user found.');
         setErrorMsg('Invalid email address or password.');
         setLoading(false);
         return;
       }
 
       const user = data[0];
+      console.log('4. User found:', user);
 
       // 3. Verify allowed roles
       if (user.role === 'super_admin' || user.role === 'admin') {
-        // Store user state locally for client-side access across pages
         localStorage.setItem('sbfp_user', JSON.stringify(user));
-
-        // Redirect directly to the intake route
+        console.log('5. Navigating to /intake...');
         window.location.href = '/intake';
       } else {
         setErrorMsg('Access denied. Administrator privileges required.');
         setLoading(false);
       }
     } catch (err: any) {
-      console.error('Unexpected login error:', err);
+      console.error('Catch Error:', err);
       setErrorMsg(err?.message || 'An unexpected error occurred during authentication.');
       setLoading(false);
     }
