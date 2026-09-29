@@ -24,32 +24,34 @@ export default function SBFPDataIntake() {
     checkUserSession();
   }, []);
 
-  async function checkUserSession() {
-    // 1. Verify active session
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+  function checkUserSession() {
+    // 1. Retrieve session from localStorage
+    const storedUser = localStorage.getItem('sbfp_user');
+
+    if (!storedUser) {
       router.push('/login');
       return;
     }
 
-    // 2. Fetch profile role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
+    try {
+      const user = JSON.parse(storedUser);
 
-    // 3. Enforce Role Protection
-    if (!profile || (profile.role !== 'super_admin' && profile.role !== 'admin')) {
-      await supabase.auth.signOut();
+      // 2. Enforce Role Protection
+      if (!user || (user.role !== 'super_admin' && user.role !== 'admin')) {
+        localStorage.removeItem('sbfp_user');
+        router.push('/login');
+        return;
+      }
+
+      setUserEmail(user.email || '');
+      setUserRole(user.role || '');
+      setCheckingAuth(false);
+      fetchStudents();
+    } catch (e) {
+      console.error('Invalid user session data:', e);
+      localStorage.removeItem('sbfp_user');
       router.push('/login');
-      return;
     }
-
-    setUserEmail(session.user.email || '');
-    setUserRole(profile.role);
-    setCheckingAuth(false);
-    fetchStudents();
   }
 
   async function fetchStudents() {
@@ -57,8 +59,8 @@ export default function SBFPDataIntake() {
     if (data) setBeneficiaries(data);
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
+  function handleLogout() {
+    localStorage.removeItem('sbfp_user');
     router.push('/login');
   }
 
@@ -215,7 +217,7 @@ export default function SBFPDataIntake() {
           <button
             type="submit"
             disabled={loading || !selectedStudent}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold rounded-lg transition-colors text-sm"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold rounded-lg transition-colors text-sm cursor-pointer"
           >
             {loading ? 'Submitting Log...' : 'Save Monitoring Entry'}
           </button>
