@@ -18,40 +18,37 @@ export default function LoginPage() {
     setErrorMsg('');
 
     try {
-      // 1. Authenticate user credentials
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // 1. Call custom RPC function to verify credentials against app_users
+      const { data, error } = await supabase.rpc('authenticate_user', {
+        p_email: email,
+        p_password: password,
       });
 
-      if (authError || !authData.user) {
-        setErrorMsg(authError?.message || 'Login failed. Please check your credentials.');
+      if (error) {
+        console.error('RPC Authentication Error:', error);
+        setErrorMsg('Authentication service error. Please try again.');
         setLoading(false);
         return;
       }
 
-      // 2. Query user role from profiles table
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', authData.user.id)
-        .maybeSingle();
-
-      if (profileError || !profile) {
-        console.error('Profile query error:', profileError);
-        setErrorMsg(`Failed to verify permissions: ${profileError?.message || 'Profile record missing.'}`);
-        await supabase.auth.signOut();
+      // 2. Validate returned user data (empty array means invalid email or password)
+      if (!data || data.length === 0) {
+        setErrorMsg('Invalid email address or password.');
         setLoading(false);
         return;
       }
+
+      const user = data[0];
 
       // 3. Verify allowed roles
-      if (profile.role === 'super_admin' || profile.role === 'admin') {
-        router.push('/intake');
-        router.refresh();
+      if (user.role === 'super_admin' || user.role === 'admin') {
+        // Store user state locally for client-side access across pages
+        localStorage.setItem('sbfp_user', JSON.stringify(user));
+
+        // Redirect directly to the intake route
+        window.location.href = '/intake';
       } else {
         setErrorMsg('Access denied. Administrator privileges required.');
-        await supabase.auth.signOut();
         setLoading(false);
       }
     } catch (err: any) {
